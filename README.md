@@ -58,9 +58,4 @@ This project was built and deployed using Replit.
 ## Author
 
 Munazza Nadir
-cd oracool-ai-astrology
 
-Install dependencies:
-
-```bash
-npm install
