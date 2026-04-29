@@ -48,16 +48,14 @@ export async function registerRoutes(
       const dateParts = input.birthDate.split("-").map(Number); // YYYY-MM-DD
       const timeParts = input.birthTime.split(":").map(Number); // HH:MM
 
-      // 3. Calculate Chart (Dynamically import to avoid build errors before install)
-      const { Horoscope, Origin } = await import("circular-natal-horoscope-js");
-      
+      // 3. Calculate Chart
+      const horoscopeModule = await import("circular-natal-horoscope-js");
+      const Horoscope = horoscopeModule.Horoscope ?? (horoscopeModule as any).default?.Horoscope ?? (horoscopeModule as any).default;
+      const Origin = horoscopeModule.Origin ?? (horoscopeModule as any).default?.Origin;
+
       const origin = new Origin({
         year: dateParts[0],
-        month: dateParts[1] - 1, // 0-indexed month? Library docs say "month: 6 // June", so likely 0-indexed or 1-indexed? Usually JS is 0. 
-        // Wait, standard JS Date is 0-indexed. Let's assume 0-indexed based on "June = 6" example if 1-indexed? No, June is 6th month. 
-        // Let's assume 1-indexed for now based on common sense, or check docs if errors.
-        // Actually, the example said "month: 6 // June", so it's 1-indexed? 
-        // Let's try to be safe. 
+        month: dateParts[1] - 1, // 0-indexed (JS Date convention)
         date: dateParts[2],
         hour: timeParts[0],
         minute: timeParts[1],
