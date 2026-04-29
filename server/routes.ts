@@ -4,8 +4,13 @@ import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
 import OpenAI from "openai";
-// We'll import these dynamically or assume they are installed after requirements.md
-// import { Horoscope, Origin } from "circular-natal-horoscope-js"; 
+
+type NatalConstructor = new (opts: Record<string, unknown>) => Record<string, unknown>;
+interface NatalHoroscopeLib {
+  Horoscope: NatalConstructor;
+  Origin: NatalConstructor;
+}
+type NatalHoroscopeModule = NatalHoroscopeLib & { default?: Partial<NatalHoroscopeLib> };
 
 // Setup OpenAI
 const openai = new OpenAI({
@@ -49,9 +54,13 @@ export async function registerRoutes(
       const timeParts = input.birthTime.split(":").map(Number); // HH:MM
 
       // 3. Calculate Chart
-      const horoscopeModule = await import("circular-natal-horoscope-js");
-      const Horoscope = horoscopeModule.Horoscope ?? (horoscopeModule as any).default?.Horoscope ?? (horoscopeModule as any).default;
-      const Origin = horoscopeModule.Origin ?? (horoscopeModule as any).default?.Origin;
+      const horoscopeModule = (await import("circular-natal-horoscope-js")) as unknown as NatalHoroscopeModule;
+      const Horoscope = horoscopeModule.Horoscope ?? horoscopeModule.default?.Horoscope;
+      const Origin = horoscopeModule.Origin ?? horoscopeModule.default?.Origin;
+
+      if (typeof Horoscope !== "function" || typeof Origin !== "function") {
+        throw new Error("Natal horoscope library did not export Horoscope and Origin constructors");
+      }
 
       const origin = new Origin({
         year: dateParts[0],
