@@ -2,10 +2,33 @@ import { cn } from "@/lib/utils";
 import { Message } from "@shared/schema";
 import { motion } from "framer-motion";
 import { Sparkles, User } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import type { Components } from "react-markdown";
 
 interface MessageBubbleProps {
   message: Message;
 }
+
+const markdownComponents: Components = {
+  p: ({ children }) => (
+    <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>
+  ),
+  strong: ({ children }) => (
+    <strong className="font-semibold text-white">{children}</strong>
+  ),
+  em: ({ children }) => (
+    <em className="italic text-white/90">{children}</em>
+  ),
+  ul: ({ children }) => (
+    <ul className="list-disc list-outside pl-4 mb-2 space-y-1">{children}</ul>
+  ),
+  ol: ({ children }) => (
+    <ol className="list-decimal list-outside pl-4 mb-2 space-y-1">{children}</ol>
+  ),
+  li: ({ children }) => (
+    <li className="leading-relaxed">{children}</li>
+  ),
+};
 
 export function MessageBubble({ message }: MessageBubbleProps) {
   const isAssistant = message.role === "assistant";
@@ -30,13 +53,19 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       {/* Bubble */}
       <div
         className={cn(
-          "max-w-[80%] md:max-w-[70%] rounded-2xl px-5 py-3.5 shadow-md text-sm md:text-base leading-relaxed",
+          "max-w-[80%] md:max-w-[70%] rounded-2xl px-5 py-3.5 shadow-md text-sm md:text-base",
           isAssistant
-            ? "bg-white/10 backdrop-blur-md border border-white/10 text-white rounded-tl-none"
+            ? "bg-white/10 backdrop-blur-md border border-white/10 text-white/90 rounded-tl-none"
             : "bg-gradient-to-br from-pink-600 to-purple-600 text-white rounded-tr-none shadow-pink-500/20"
         )}
       >
-        <p className="whitespace-pre-wrap">{message.content}</p>
+        {isAssistant ? (
+          <ReactMarkdown components={markdownComponents}>
+            {message.content}
+          </ReactMarkdown>
+        ) : (
+          <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
+        )}
       </div>
 
       {/* Avatar (User only) */}
