@@ -128,7 +128,7 @@ export default function Chat() {
                 data-testid={`chip-suggestion-${suggestion.replace(/\s+/g, "-").toLowerCase()}`}
                 onClick={() => handleSuggestionClick(suggestion)}
                 disabled={sendMessage.isPending}
-                className="flex-shrink-0 px-4 py-2 rounded-full bg-white/5 border border-white/15 text-sm text-white/75 hover:bg-white/10 hover:text-white hover:border-white/25 hover:scale-105 active:scale-95 transition-all duration-150 backdrop-blur-sm disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+                className="flex-shrink-0 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-white/75 hover:bg-white/10 hover:text-white hover:border-white/20 hover:scale-105 active:scale-95 transition-all duration-150 backdrop-blur-sm disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
               >
                 {suggestion}
               </button>
