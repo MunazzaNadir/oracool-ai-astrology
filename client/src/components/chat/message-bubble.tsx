@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Message } from "@shared/schema";
 import { motion } from "framer-motion";
@@ -7,8 +8,8 @@ interface MessageBubbleProps {
   message: Message;
 }
 
-function renderInline(text: string, key: string | number): React.ReactNode {
-  const parts: React.ReactNode[] = [];
+function renderInline(text: string, key: string | number): ReactNode {
+  const parts: ReactNode[] = [];
   const boldRegex = /\*\*(.+?)\*\*/g;
   let last = 0;
   let match: RegExpExecArray | null;
@@ -32,9 +33,9 @@ function renderInline(text: string, key: string | number): React.ReactNode {
   return <>{parts}</>;
 }
 
-function renderMarkdown(content: string): React.ReactNode {
+function renderMarkdown(content: string): ReactNode {
   const lines = content.split("\n");
-  const elements: React.ReactNode[] = [];
+  const elements: ReactNode[] = [];
   let i = 0;
 
   while (i < lines.length) {
