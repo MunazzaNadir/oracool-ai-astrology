@@ -37,3 +37,8 @@ Clone the repository:
 ```bash
 git clone https://github.com/YOUR-USERNAME/oracool-ai-astrology.git
 cd oracool-ai-astrology
+
+Install dependencies:
+
+```bash
+npm install
