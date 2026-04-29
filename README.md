@@ -37,6 +37,28 @@ Clone the repository:
 ```bash
 git clone https://github.com/MunazzaNadir/oracool-ai-astrology.git
 cd oracool-ai-astrology
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run locally:
+
+```bash
+npm run dev
+```
+
+## Deployment
+
+This project was built and deployed using Replit.
+
+## Author
+
+Munazza Nadir
+cd oracool-ai-astrology
 
 Install dependencies:
 
