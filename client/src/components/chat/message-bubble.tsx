@@ -2,33 +2,102 @@ import { cn } from "@/lib/utils";
 import { Message } from "@shared/schema";
 import { motion } from "framer-motion";
 import { Sparkles, User } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import type { Components } from "react-markdown";
 
 interface MessageBubbleProps {
   message: Message;
 }
 
-const markdownComponents: Components = {
-  p: ({ children }) => (
-    <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>
-  ),
-  strong: ({ children }) => (
-    <strong className="font-semibold text-white">{children}</strong>
-  ),
-  em: ({ children }) => (
-    <em className="italic text-white/90">{children}</em>
-  ),
-  ul: ({ children }) => (
-    <ul className="list-disc list-outside pl-4 mb-2 space-y-1">{children}</ul>
-  ),
-  ol: ({ children }) => (
-    <ol className="list-decimal list-outside pl-4 mb-2 space-y-1">{children}</ol>
-  ),
-  li: ({ children }) => (
-    <li className="leading-relaxed">{children}</li>
-  ),
-};
+function renderInline(text: string, key: string | number): React.ReactNode {
+  const parts: React.ReactNode[] = [];
+  const boldRegex = /\*\*(.+?)\*\*/g;
+  let last = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = boldRegex.exec(text)) !== null) {
+    if (match.index > last) {
+      parts.push(text.slice(last, match.index));
+    }
+    parts.push(
+      <strong key={`b-${key}-${match.index}`} className="font-semibold text-white">
+        {match[1]}
+      </strong>
+    );
+    last = match.index + match[0].length;
+  }
+  if (last < text.length) {
+    parts.push(text.slice(last));
+  }
+  if (parts.length === 0) return null;
+  if (parts.length === 1 && typeof parts[0] === "string") return parts[0];
+  return <>{parts}</>;
+}
+
+function renderMarkdown(content: string): React.ReactNode {
+  const lines = content.split("\n");
+  const elements: React.ReactNode[] = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    // Bullet list group
+    if (/^[-*] /.test(line)) {
+      const items: React.ReactNode[] = [];
+      while (i < lines.length && /^[-*] /.test(lines[i])) {
+        const text = lines[i].replace(/^[-*] /, "");
+        items.push(
+          <li key={i} className="leading-relaxed">
+            {renderInline(text, i)}
+          </li>
+        );
+        i++;
+      }
+      elements.push(
+        <ul key={`ul-${i}`} className="list-disc list-outside pl-4 mb-2 space-y-1">
+          {items}
+        </ul>
+      );
+      continue;
+    }
+
+    // Ordered list group
+    if (/^\d+\. /.test(line)) {
+      const items: React.ReactNode[] = [];
+      while (i < lines.length && /^\d+\. /.test(lines[i])) {
+        const text = lines[i].replace(/^\d+\. /, "");
+        items.push(
+          <li key={i} className="leading-relaxed">
+            {renderInline(text, i)}
+          </li>
+        );
+        i++;
+      }
+      elements.push(
+        <ol key={`ol-${i}`} className="list-decimal list-outside pl-4 mb-2 space-y-1">
+          {items}
+        </ol>
+      );
+      continue;
+    }
+
+    // Empty line → small gap between paragraphs
+    if (line.trim() === "") {
+      elements.push(<div key={`gap-${i}`} className="h-1" />);
+      i++;
+      continue;
+    }
+
+    // Regular paragraph line
+    elements.push(
+      <p key={`p-${i}`} className="mb-1 leading-relaxed">
+        {renderInline(line, i)}
+      </p>
+    );
+    i++;
+  }
+
+  return <>{elements}</>;
+}
 
 export function MessageBubble({ message }: MessageBubbleProps) {
   const isAssistant = message.role === "assistant";
@@ -60,9 +129,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         )}
       >
         {isAssistant ? (
-          <ReactMarkdown components={markdownComponents}>
-            {message.content}
-          </ReactMarkdown>
+          <div>{renderMarkdown(message.content)}</div>
         ) : (
           <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
         )}
